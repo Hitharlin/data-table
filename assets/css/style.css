@@ -1,0 +1,16 @@
+@import url("./reset.css");
+@import url("./main.css");
+
+.page-item {
+    display: inline-block;
+    padding: 10px;
+    background-color: #CCCCCC;
+}
+
+.page-item:not(:last-child){
+    margin-right:20px;
+}
+
+.pagination-box {
+    margin-top: 20px;
+}
