@@ -1,19 +1,21 @@
   class DataTable {
-    constructor(columns = [], data = [], table, pageCount) {
+    constructor(columns = [], data = [], perPageLimit) {
       this.columns = columns;
       this.data = data;
-      this.table = table;
-      this.pageCount = pageCount;
-    } 
-  
+      this.perPageLimit = perPageLimit;
+    } ;
+     
     createTable() {
       const $dataTableContainer = document.querySelector('.data-table-container');
+      const $table = document.createElement('table');
+      this.table = $table
       $dataTableContainer.appendChild(this.table);
 
         this.createThead();
         this.createTbody();
         this.renderData();
         this.createPagination();
+        this.createInput();
     }
 
   createThead() {
@@ -33,54 +35,98 @@
   createTbody() {
     const $tbody = document.createElement('tbody');
     this.table.appendChild($tbody);
+
   }
 
   renderData() {
-    let $trs = [];
-    this.data.map((item, index) => {
-      const $tr = document.createElement('tr');
+    this.displayList(0, this.perPageLimit);
+  }
 
-      if(index < this.pageCount) {
-          for(const key in item) {
-              const $td = document.createElement('td');
-              $td.innerHTML = item[key];
-              $tr.appendChild($td);
-          }
-      }
+  createInput(){
+    const $input = document.createElement('input');
+    const $btn = document.createElement('button');
+    const dataTable = this;
 
-    document.getElementsByTagName('tbody')[0].appendChild($tr);
+    $btn.innerHTML="ok";
+    $input.classList.add('count-field');
+    document.getElementsByClassName('page-count-info')[0].appendChild($input);
+    document.getElementsByClassName('page-count-info')[0].appendChild($btn);
 
-    // console.log(index)
-
+    $btn.addEventListener('click', function(){
+        console.log($input.value);
+        dataTable.perPageLimit = $input.value;
+        dataTable.createPagination();
+        dataTable.renderData();
+        document.getElementsByTagName('body')[0].removeChild('table');
     })
   }
 
   createPagination(){
-        if(this.data.length > this.pageCount) {
-            const paginationBox = document.createElement('div');
-            
-            const pageNumber = Math.ceil(this.data.length / this.pageCount);
-            paginationBox.classList.add('pagination-box')
-            for(let i=1; i<=pageNumber; i++){
-                const pageButton = document.createElement('button');
-                pageButton.classList.add('page-item');
-                pageButton.classList.add('active');
+    if(this.data.length > this.perPageLimit) {
 
-                pageButton.innerHTML = i;
-                paginationBox.appendChild(pageButton);
+        const paginationBox = document.createElement('div');
+        const pageNumber = Math.ceil(this.data.length / this.perPageLimit);
+        paginationBox.classList.add('pagination-box')
+
+        for(let i=1; i<=pageNumber; i++){
+            const $pageButton = document.createElement('button');
+            $pageButton.classList.add('page-item');
+            $pageButton.innerHTML = i;
+            paginationBox.appendChild($pageButton);
+            if(i==1){
+                $pageButton.classList.add('page-active');
+            }
+        }
+
+        document.querySelector('.data-table-container').appendChild(paginationBox);
+        document.getElementsByClassName('page-info')[0].appendChild(paginationBox);
+        const dataTable = this;
+        console.log(this);
+        document.querySelectorAll('.page-item').forEach((eachItem)=> {
+        eachItem.addEventListener('click', function(){
+            if(document.querySelector('.page-active')){
+                document.querySelector('.page-active').classList.remove('page-active');
             }
 
-            // document.getElementsByClassName('page-item')[0].classList.add('active');
+            const $current_page = this;
+            $current_page.classList.add('page-active');
+            let start = 0;
+            let end = dataTable.perPageLimit;
 
-            console.log(document.getElementsByClassName('page-item')[0]);
-            document.getElementsByTagName('body')[0].appendChild(paginationBox);
-        }
-  }
+            if(parseInt(document.querySelector('.page-active').innerHTML)>1){
+                start = dataTable.perPageLimit * (parseInt(document.querySelector('.page-active').innerHTML) - 1);
+                end = parseInt(document.querySelector('.page-active').innerHTML) * dataTable.perPageLimit;
+            }
+
+            document.getElementsByTagName('tbody')[0].replaceChildren();
+            dataTable.displayList(start, end);
+            // console.log(parseInt(document.querySelector('.page-active').innerHTML));
+            }   
+            ) 
+        })
+    }
 }
 
+displayList(startCount, endCount) {
+
+    const eachPageItems = this.data.slice(startCount, endCount);
+    console.log(startCount, endCount);
+        
+    eachPageItems.forEach((item, index) => {
+      const $tr = document.createElement('tr');
+        for(const key in item) {
+                const $td = document.createElement('td');
+                $td.innerHTML = item[key];
+                $tr.appendChild($td);
+            }
+        
+         document.getElementsByTagName('tbody')[0].appendChild($tr);
+    })
+}
+
+}
 
 // export default DataTable;
-
 
 const columns = ['id', 'name', 'age'];
 
@@ -239,6 +285,6 @@ const data = [
 
 const table = document.createElement('table')
 
-const dataTable = new DataTable(columns, data, table, 10);
+const dataTable = new DataTable(columns, data, 5);
 
 dataTable.createTable();
