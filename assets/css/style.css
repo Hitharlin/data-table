@@ -59,7 +59,7 @@ table {
     margin: 20px auto 5px;
     padding: 10px;
     /* margin-top: 14px; */
-    width: 60px;
+    width: 70px;
     border: 2px solid rgb(103, 124, 124);
     border-radius: 10px;
 
@@ -82,4 +82,26 @@ table {
 
 .page-count-info {
     text-align: center;
+}
+
+label {
+display: inherit;
+text-align: center;
+margin-top: 30px;
+}
+
+label select {
+    border: 1px solid rgb(103, 124, 124);
+    background-color:rgb(237, 245, 245);
+    /* color: white; */
+    padding: 10px 15px;
+    border-radius: 10px;
+
+}
+
+label option {
+    border: 1px solid rgb(103, 124, 124);
+    background-color:rgb(103, 124, 124);
+    color: white;
+
 }
