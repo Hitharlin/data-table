@@ -8,10 +8,10 @@
 }
 
 th {
+    position: relative;
     font-weight: bolder;
     background-color:darkslategrey;
     color: white;
-
 }
 
 th, td {
@@ -103,5 +103,36 @@ label option {
     border: 1px solid rgb(103, 124, 124);
     background-color:rgb(103, 124, 124);
     color: white;
-
 }
+
+input {
+    border: 1px solid rgb(103, 124, 124);
+    background-color:rgb(234, 244, 244);
+    display: inherit;
+    text-align: center; 
+}
+
+.arrow-icon {
+    display: inline-block;
+    background-color: white;
+    width: 20px;
+    height: 20px;
+    margin-left: 20px;
+}
+
+.block-option {
+    position: absolute;
+    /* display: none; */
+    right: 0;
+    bottom: 0;
+}
+
+.block-option.active {
+    display: block;
+}
+
+  td button {
+    border: none;
+    cursor: pointer;
+  }
+
