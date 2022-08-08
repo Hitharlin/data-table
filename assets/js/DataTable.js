@@ -4,6 +4,8 @@
         rowClassName = 'data-row',
         cellClassName = 'data-cell',
         tableClassName = 'data-table',
+        arrowIcon = 'arrow-icon',
+        blockOption = 'block-option',
     }
     ){
       this.columns = columns;
@@ -12,85 +14,55 @@
       this.rowClassName = rowClassName;
       this.cellClassName = cellClassName;
       this.tableClassName = tableClassName;
+      this.arrowIcon = arrowIcon;
+      this.blockOption = blockOption;
     } ;
-    
-    createSortingBox(){
-        const $label = document.createElement('label');
-        $label.innerHTML = 'Sort by:';
-        const $select = document.createElement('select');
-        const $optionIdAsc = document.createElement('option');
-        const $optionIdDesc = document.createElement('option');
-        $optionIdAsc.value = 'id-asc'; 
-        $optionIdAsc.innerHTML = 'by id asc';
-        $optionIdDesc.value = 'id-desc'; 
-        $optionIdDesc.innerHTML = 'by id desc';
-        const $optionNameAsc = document.createElement('option');
-        const $optionNameDesc = document.createElement('option');
 
-        $optionNameAsc.value = 'name-asc'; 
-        $optionNameAsc.innerHTML = 'by name asc';
-        $optionNameDesc.value = 'name-desc'; 
-        $optionNameDesc.innerHTML = 'by name desc';
-        const $optionAgeAsc = document.createElement('option');
-        const $optionAgeDesc = document.createElement('option');
-        $optionAgeAsc.value = 'age-asc'; 
-        $optionAgeAsc.innerHTML = 'by age asc'; 
-        $optionAgeDesc.value = 'age-desc'; 
-        $optionAgeDesc.innerHTML = 'by age desc'; 
-        const data = this.data;
+    createSearchField(){
+        const $input = document.createElement('input');
+        $input.setAttribute("type", "search");
+        $input.placeholder = 'search';
+        document.querySelector('body').appendChild($input);
+        
+        $input.onchange = (event) => {
+            const searchResult = [];
+            let noResult = false;
+            this.data.map((item) => {
+                for(const key in item) {
+                    if(item[key].toString().toLowerCase().startsWith($input.value.toLowerCase())){
+                        searchResult.push(item);
+                  }
+                }
+                document.querySelector('tbody').innerHTML = null;
+            })
 
-        $select.onchange = () => {
-
-               data.sort((a, b) => {
-                if($select.value == 'id-asc'){
-                    return a.id - b.id
-                }else  if($select.value == 'id-desc'){
-                    return b.id - a.id
-                }else if ($select.value == 'name-asc'){
-                    if(a.name > b.name){
-                        return -1
-                    } else if(a.name < b.name){
-                        return 1
-                    }
-                    return 0
-                }else if($select.value == 'name-desc'){
-                    if(a.name > b.name){
-                        return 1
-                    } else if(a.name < b.name){
-                        return -1
-                    }
-                    return 0
-                }else if($select.value == 'age-asc'){
-                    return a.age - b.age
+            if(searchResult.length > 0) {
+                searchResult.forEach((item, index) => {
+                    const $tr = document.createElement('tr');
+                      
+                    for(const key in item) {
+                              const $td = document.createElement('td');
+                              $td.innerHTML = item[key];
+                              $tr.appendChild($td);
+                      }
+                                 
+                    document.getElementsByTagName('tbody')[0].appendChild($tr);
+                  })
                 }else {
-                    return b.age - a.age
+                    const $tr = document.createElement('tr');
+                    const $noResultTd = document.createElement('td');
+                    $noResultTd.colSpan = '4';
+                    $noResultTd.innerHTML = 'No Result';
+                    $tr.appendChild($noResultTd);
+                    document.querySelector('tbody').appendChild($tr);
                 }
-                }
-            ) 
-                   
-            this.table.querySelector('tbody').innerHTML = null; 
-            document.querySelector('.page-info').innerHTML = null; 
-            this.renderData();
-            this.createPagination();
-        };
-
-        document.querySelector('.table-options').appendChild($label);
-        $label.appendChild($select);
-        $select.appendChild($optionIdAsc);
-        $select.appendChild($optionIdDesc);
-        $select.appendChild($optionNameAsc);
-        $select.appendChild($optionNameDesc);
-        $select.appendChild($optionAgeAsc);
-        $select.appendChild($optionAgeDesc);
-   
+        }
     }
-
 
     createTable($dataTableContainer) {
       const $table = document.createElement('table');
       $table.classList.add(this.tableClassName);  //////նոր կլաս  (ռեֆակտրինգ)
       this.table = $table;
-
       $dataTableContainer.appendChild(this.table);
 
         this.createThead();
@@ -98,47 +70,77 @@
         this.renderData();
         this.createPagination();
         this.createInput();
-        this.createSortingBox();
-
+        this.createSearchField();
     }
 
-  createThead() {
+testSort(currentElement) {
+    
+    this.data.sort((a, b) => {
+        if(currentElement == 'id-asc'){
+            return a.id - b.id
+        }else  if(currentElement == 'id-desc'){
+            return b.id - a.id
+        }else if (currentElement == 'name-desc'){
+            if(a.name > b.name){
+                return -1
+            } else if(a.name < b.name){
+                return 1
+            }
+            return 0
+        }else if(currentElement == 'name-asc'){
+            if(a.name > b.name){
+                return 1
+            } else if(a.name < b.name){
+                return -1
+            }
+            return 0
+        }else if(currentElement == 'age-asc'){
+            return a.age - b.age
+        }else {
+            return b.age - a.age
+        }
+        }
+    ) 
+    this.table.querySelector('tbody').innerHTML = null; 
+    document.querySelector('.page-info').innerHTML = null; 
+    this.renderData();
+    this.createPagination();
+}
+
+
+createThead() {
     const $thead = document.createElement('thead');
-    const $tr = document.createElement('tr');   
-    $tr.classList.add(this.rowClassName);    //////նոր կլաս
-    this.columns.forEach((column) => {
-      const $th = document.createElement('th');
-      $th.innerHTML = column;
-      $tr.appendChild($th);
+    const $tr = document.createElement('tr');
+
+    columns.forEach((item) => {
+        const $th = document.createElement('th');
+        $th.dataset.filterBy = '';
+        $th.innerHTML = item;
+        $th.addEventListener('click', (event) =>{
+            let $clickedItem = event.target;
+            if($clickedItem.dataset.filterBy != (`${item}-asc`)){
+                $clickedItem.dataset.filterBy = (`${item}-asc`);
+            }else {
+                $clickedItem.dataset.filterBy = (`${item}-desc`);
+            }
+            this.testSort($clickedItem.dataset.filterBy);
+        })
+   
+        $tr.appendChild($th);  
     });
 
+    const $dltTh = document.createElement('th');
+    $tr.appendChild($dltTh);
     $thead.appendChild($tr);
-    this.table.appendChild($thead)
-
-    // $optionAge.addEventListener('click')
-   
-    };
-// console.log(on)
-
-
-
-  
-
-  
-    
-
+    this.table.appendChild($thead);
+    }
 
   createTbody() {
     const $tbody = document.createElement('tbody');
     this.table.appendChild($tbody);
-
-    /////////////////////
-    // console.log(sortByAge);     ////////////////////
   }
 
   renderData() {
-        // const byId = data.sort((a, b) => b.id - a.id);
-        // console.log(sort());
     this.displayList(0, this.perPageLimit);
   }
 
@@ -153,30 +155,23 @@
     document.querySelector('.page-count-info').appendChild($input);
     document.querySelector('.page-count-info').appendChild($btn);
 
-
     $btn.addEventListener('click', () => {
         this.table.querySelector('tbody').innerHTML = null;      //աշխատեց//
         document.querySelector('.page-info').innerHTML = null;
-        // console.log($input.value);
         dataTable.perPageLimit = $input.value;
         dataTable.createPagination();
         dataTable.renderData();
     })
-
   }
 
   createPagination(){
     
     if(this.data.length > this.perPageLimit) {
-
         const paginationBox = document.createElement('div');
         const pageNumber = Math.ceil(this.data.length / this.perPageLimit);
         paginationBox.classList.add('pagination-box')
 
-
         for(let i = 1; i <= pageNumber; i++){
-
-
             const $pageButton = document.createElement('button');
             $pageButton.classList.add('page-item');
             $pageButton.innerHTML = i;
@@ -194,7 +189,6 @@
             if(document.querySelector('.page-active')){
                 document.querySelector('.page-active').classList.remove('page-active');
             }
-            // document.querySelector('page-item').innerHTML = null;      //------չաշխատեց//
 
             const $current_page = this;
             $current_page.classList.add('page-active');
@@ -208,15 +202,9 @@
 
             document.getElementsByTagName('tbody')[0].replaceChildren();
             dataTable.displayList(start, end);
-            // console.log(parseInt(document.querySelector('.page-active').innerHTML));
             }   
             ) 
-        })
-        // const $dataTableContainer = document.querySelector('.data-table-container').appendChild(paginationBox);
-        // if(document.querySelector('.pagination-box') != null){
-        //     const $pagination = document.querySelector('.pagination-box');
-        //     $dataTableContainer
-        // }
+        }) 
     }
 }
 
@@ -224,7 +212,7 @@ displayList(startCount, endCount) {
 
     const eachPageItems = this.data.slice(startCount, endCount);
     
-    eachPageItems.forEach((item, index) => {
+    eachPageItems.forEach((item) => {
       const $tr = document.createElement('tr');
         
       for(const key in item) {
@@ -232,11 +220,41 @@ displayList(startCount, endCount) {
                 $td.innerHTML = item[key];
                 $tr.appendChild($td);
         }
+        const $deleteTd = document.createElement('td');
+        const $tdBtn = document.createElement('button');
         
+
+        const $iIcon = document.createElement('i');
+        $iIcon.classList.add('fa');
+
+        $iIcon.classList.add('fa-trash');
+
+        $iIcon.dataset.currentRowId = item.id;
+        $tdBtn.appendChild($iIcon)
+
+        $iIcon.addEventListener('click', (event) => {
+            console.log(event.target.dataset.currentRowId)
+            const indexOfObject = this.data.findIndex(item => {
+                return item.id == event.target.dataset.currentRowId;
+              });
+
+              this.data.splice(indexOfObject, 1);
+              console.log('index', indexOfObject)
+              console.log(this.data)
+              this.table.querySelector('tbody').innerHTML = null;      //աշխատեց//
+            document.querySelector('.page-info').innerHTML = null;
+        this.createPagination();
+        this.renderData();
+
+        })
+
+        $deleteTd.appendChild($tdBtn);
+        $tr.appendChild($deleteTd);
+
+
         document.getElementsByTagName('tbody')[0].appendChild($tr);
     })
 }
-
 }
 
 
@@ -247,6 +265,22 @@ const options = {    /////// չեմ հասկացել ինչի համար ա
 };
 
 const columns = ['id', 'name', 'age'];
+
+// const columnsObject = [
+//     {
+//         value: 'ID';
+//         dataIndex: 'id'
+//     }
+//     {
+//         value: 'Name';
+//         dataIndex: 'name'
+//     }
+//     {
+//         value: 'Age';
+//         dataIndex: 'age';  ///////սրան setAtribute ենք անելու 
+//     }
+
+// ]
 
 const data = [
     {
@@ -346,7 +380,7 @@ const data = [
     },
     {
         id: 20,
-        name: 'Baghdasar',
+        name: 'Gevorg',
         age: 25,
     },
     {
@@ -356,12 +390,12 @@ const data = [
     },
     {
         id: 22,
-        name: 'Hripsime',
+        name: 'Gevorg',
         age: 67,
     },
     {
         id: 23,
-        name: 'Geo',
+        name: 'Gevorg',
         age: 45,
     },
     {
@@ -407,10 +441,6 @@ const dataTable = new DataTable(columns, data, {});  ///չգիտեմ ոնց ստ
 const $dataTableContainer = document.querySelector('.data-table-container');
 
 dataTable.createTable($dataTableContainer);
-
-
-
-
 
 
 
