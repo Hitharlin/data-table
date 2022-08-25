@@ -183,13 +183,11 @@ const data = [
     },
 ];
 
+const options = {   
 
+};
 
 const columns = ['id', 'name', 'age', 'hobby'];
-
-// const table = document.createElement('table');  haneci
-
-// const dataTable = new DataTable(columns, data, {});  
 
 Element.prototype.DataTable = function(columns, data, options) {
     const dataTable = new DataTable(columns, data, options);
